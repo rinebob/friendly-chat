@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "prod": "friendly-chat-d71b3"
+  },
+  "targets": {},
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
+}
