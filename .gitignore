@@ -6,3 +6,4 @@
 .firebase
 *-debug.log
 .runtimeconfig.json
+src/secrets/secrets.ts
