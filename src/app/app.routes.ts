@@ -14,19 +14,19 @@ export const routes: Routes = [
   {
     path: '',
     component: LoginPageComponent,
-    canActivate: [AuthGuard],
-    data: { authGuardPipe: redirectLoggedInToHome },
+    // canActivate: [AuthGuard],
+    // data: { authGuardPipe: redirectLoggedInToHome },
   },
   {
     path: 'login',
     component: LoginPageComponent,
-    canActivate: [AuthGuard],
-    data: { authGuardPipe: redirectLoggedInToHome },
+    // canActivate: [AuthGuard],
+    // data: { authGuardPipe: redirectLoggedInToHome },
   },
   {
     path: 'chat',
     component: ChatPageComponent,
-    canActivate: [AuthGuard],
-    data: { authGuardPipe: redirectUnauthorizedToLogin },
+    // canActivate: [AuthGuard],
+    // data: { authGuardPipe: redirectUnauthorizedToLogin },
   },
 ];
