@@ -19,6 +19,7 @@ export class ChatPageComponent {
   text = '';
 
   sendTextMessage() {
+    console.log('c sTM send message: ', this.text);
     this.chatService.saveTextMessage(this.text);
     this.text = '';
   }

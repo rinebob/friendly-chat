@@ -16,7 +16,7 @@ export const appConfig: ApplicationConfig = {
     provideAuth(() => getAuth()),
     provideFunctions(() => getFunctions()),
     provideStorage(() => getStorage()),
-    provideMessaging(() => getMessaging()),
+    // provideMessaging(() => getMessaging()),
     provideRouter(routes),
   ],
 };
