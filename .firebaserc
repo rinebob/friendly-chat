@@ -1,6 +1,7 @@
 {
   "projects": {
-    "prod": "friendly-chat-d71b3"
+    "prod": "friendly-chat-d71b3",
+    "default": "friendly-chat-d71b3"
   },
   "targets": {},
   "etags": {},
