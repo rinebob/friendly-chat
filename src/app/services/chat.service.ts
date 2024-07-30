@@ -57,7 +57,7 @@ export class ChatService {
     firestore: Firestore = inject(Firestore);
     auth: Auth = inject(Auth);
     storage: Storage = inject(Storage);
-    //   messaging: Messaging = inject(Messaging);
+    // messaging: Messaging = inject(Messaging);
     router: Router = inject(Router);
     private provider = new GoogleAuthProvider();
     LOADING_IMAGE_URL = 'https://www.google.com/images/spin-32.gif?a';
@@ -76,6 +76,7 @@ export class ChatService {
     // Login Friendly Chat.
     login() {
         signInWithPopup(this.auth, this.provider).then((result) => {
+            console.log('cSvc l login result: ', result);
             const credential = GoogleAuthProvider.credentialFromResult(result);
             this.router.navigate(['/', 'chat']);
             return credential;
@@ -114,12 +115,16 @@ export class ChatService {
             profilePicUrl: '',
             timestamp: serverTimestamp(),
             uid: 'abc-123',
+            // text: textMessage,
+            // imageUrl,
         };
 
         textMessage && (message.text = textMessage);
         imageUrl && (message.imageUrl = imageUrl);
 
+        console.log("cSvc aM before try block. message", message);
         try {
+            console.log("cSvc aM in try block");
             const newMessageRef = await addDoc(
                 collection(this.firestore, "messages"),
                 message,
@@ -127,6 +132,7 @@ export class ChatService {
             console.log("cSvc aM add message.  messageRef", newMessageRef);
             return newMessageRef;
         } catch (error) {
+            console.log("cSvc aM in error block");
             console.error("Error writing new message to Firebase Database", error);
             return;
         }
