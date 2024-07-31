@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig } from '@angular/core';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
 import { environment } from '../environments/environment';
 import { provideAuth, getAuth, connectAuthEmulator } from '@angular/fire/auth';
@@ -12,11 +12,37 @@ import { provideRouter } from '@angular/router';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideFirestore(() => getFirestore()),
-    provideAuth(() => getAuth()),
-    provideFunctions(() => getFunctions()),
-    provideStorage(() => getStorage()),
-    // provideMessaging(() => getMessaging()),
+    provideFirestore(() => {
+        const firestore = getFirestore();
+        if (location.hostname === 'localhost') {
+            connectFirestoreEmulator(firestore, '127.0.0.1', 8080);
+        }
+        return firestore;
+    }),
+    provideAuth(() => {
+        const auth = getAuth();
+        if (location.hostname === 'localhost') {
+            connectAuthEmulator(auth, "http://127.0.0.1:9099");
+        }
+        return auth;
+    }),
+    provideFunctions(() => {
+        const functions = getFunctions();
+        if (location.hostname === 'localhost') {
+            connectFunctionsEmulator(functions, '127.0.0.1', 5001);
+        }
+        return functions;
+
+    }),
+    provideStorage(() => {
+        const storage = getStorage();
+        if (location.hostname === 'localhost') {
+            connectStorageEmulator(storage, '127.0.0.1', 9199);
+        }
+        return storage;
+        
+    }),
+    provideMessaging(() => getMessaging()),
     provideRouter(routes),
   ],
 };
