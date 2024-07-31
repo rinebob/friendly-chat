@@ -39,15 +39,7 @@ import {
 } from '@angular/fire/storage';
 import { getToken, Messaging, onMessage } from '@angular/fire/messaging';
 import { Router } from '@angular/router';
-
-type ChatMessage = {
-    name: string | null,
-    profilePicUrl: string | null,
-    timestamp: FieldValue,
-    uid: string | null,
-    text?: string,
-    imageUrl?: string
-};
+import { ChatMessage } from '../common/interfaces';
 
 
 @Injectable({
@@ -57,7 +49,7 @@ export class ChatService {
     firestore: Firestore = inject(Firestore);
     auth: Auth = inject(Auth);
     storage: Storage = inject(Storage);
-    // messaging: Messaging = inject(Messaging);
+    messaging: Messaging = inject(Messaging);
     router: Router = inject(Router);
     private provider = new GoogleAuthProvider();
     LOADING_IMAGE_URL = 'https://www.google.com/images/spin-32.gif?a';
@@ -70,6 +62,10 @@ export class ChatService {
     constructor() {
         this.userSubscription = this.user$.subscribe((aUser: User | null) => {
             this.currentUser = aUser;
+        });
+
+        this.user$.pipe().subscribe(user => {
+            console.log('cSvc ctor user sub: ', user);
         });
     }
 
@@ -111,12 +107,12 @@ export class ChatService {
         // }
 
         const message: ChatMessage = {
-            name: 'rinebob',
-            profilePicUrl: '',
-            timestamp: serverTimestamp(),
-            uid: 'abc-123',
-            // text: textMessage,
-            // imageUrl,
+            name: this.auth.currentUser?.displayName ?? '',
+            profilePicUrl: this.auth.currentUser?.photoURL ?? '',
+            timestamp: Timestamp.fromDate(new Date()),
+            uid: this.auth.currentUser?.uid ?? '',
+            text: textMessage,
+            imageUrl,
         };
 
         textMessage && (message.text = textMessage);
@@ -146,7 +142,10 @@ export class ChatService {
 
     // Loads chat messages history and listens for upcoming ones.
     loadMessages = () => {
-        return null as unknown;
+        // Create the query to load the last 12 messages and listen for new ones.
+        const recentMessagesQuery = query(collection(this.firestore, 'messages'), orderBy('timestamp', 'desc'), limit(12));
+        // Start listening to the query.
+        return collectionData(recentMessagesQuery);
     };
 
     // Saves a new message containing an image in Firebase.
