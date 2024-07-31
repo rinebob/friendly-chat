@@ -7,3 +7,4 @@
 *-debug.log
 .runtimeconfig.json
 src/secrets/secrets.ts
+functions_js.txt

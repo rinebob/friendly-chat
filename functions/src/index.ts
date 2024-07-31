@@ -28,11 +28,13 @@ export const helloWorld = onRequest((request, response) => {
 // exports.makeUppercase = functions.firestore.document('/messages/{documentId}')
 export const makeUppercase = functions.firestore.document('/messages/{documentId}')
     .onCreate((snap, context) => {
-        console.log('functions makeUppercase called');
-        const original = snap.data().original;
-        console.log('original: ', original);
-        console.log('Uppercasing', context.params.documentId, original);
-        const uppercase = original.toUpperCase();
+        console.log('in functions directory');
+        console.log('functions makeUppercase called. snap: ', snap);
+        console.log('functions makeUppercase called. id/data: ', snap.data().id, snap.data());
+        const text = snap.data().text;
+        console.log('text: ', text);
+        console.log('Uppercasing', context.params.documentId, text);
+        const uppercase = text.toUpperCase();
         console.log('uppercase: ', uppercase);
       return snap.ref.set({uppercase}, {merge: true});
 });
