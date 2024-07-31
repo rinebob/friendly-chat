@@ -42,7 +42,7 @@ export const appConfig: ApplicationConfig = {
         return storage;
         
     }),
-    provideMessaging(() => getMessaging()),
+    // provideMessaging(() => getMessaging()),
     provideRouter(routes),
   ],
 };
