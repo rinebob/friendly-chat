@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { ChatService } from 'src/app/services/chat.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-login-page',
@@ -8,6 +8,6 @@ import { ChatService } from 'src/app/services/chat.service';
   standalone: true,
 })
 export class LoginPageComponent {
-  chatService = inject(ChatService);
-  user$ = this.chatService.user$;
+  authService = inject(AuthService);
+  user$ = this.authService.user$;
 }
