@@ -1,0 +1,52 @@
+
+
+@if(courses().length) {
+
+    <div class="courses-container">
+
+        @for(course of courses(); track course.id) {
+            
+            <div class="course-container">
+    
+                <h3>Course:</h3>
+                <p> <span>ID:: </span> {{course.id}}</p>
+                <p> <span>description: </span>{{course.description}}</p>
+                <p><span>longDescription: </span>{{course.longDescription}}</p>
+                <p><span>iconUrl: </span>{{course.iconUrl}}</p>
+                <p><span>lessonsCount: </span>{{course.lessonsCount}}</p>
+                <p><span>categories: </span>{{course.categories}}</p>
+                <p><span>seqNo: </span>{{course.seqNo}}</p>
+                <p><span>url: </span>{{course.url}}</p>
+                <p><span>price: </span>{{course.price}}</p>
+                <p><span>courseListIcon: </span>{{course.courseListIcon}}</p>
+                <p><span>promo: </span>{{course.promo}}</p>
+
+                <div class="lessons-container">
+
+                    @for(lesson of getLessonsForCourse(course.id); track lesson.id) {
+            
+                        @if(lesson) {
+    
+                            <div class="lesson-container">
+    
+                                <p><span>id: </span>{{lesson.id}}</p>
+                                <p><span>description: </span>{{lesson.description}}</p>
+                                <p><span>duration: </span>{{lesson.duration}}</p>
+                                <p><span>seqNo: </span>{{lesson.seqNo}}</p>
+                                <p><span>courseId: </span>{{lesson.courseId}}</p>
+                                <p><span>videoId: </span>{{lesson.videoId}}</p>
+    
+                            </div>
+            
+                        }
+            
+                    }
+                    
+                </div>
+    
+            </div>
+        }
+
+    </div>
+
+}
