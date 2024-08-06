@@ -1,9 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { Auth, User, user } from '@angular/fire/auth';
 import { addDoc, collection, doc, DocumentData, Firestore, getDocs, limit, orderBy, query, setDoc } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
 import { Course, Lesson } from '../common/interfaces';
 import { FirestoreCollection } from '../common/constants';
+import { CourseConverter } from '../common/firestore-converters';
 
 @Injectable({
     providedIn: 'root'
@@ -11,22 +10,11 @@ import { FirestoreCollection } from '../common/constants';
 export class CoursesService {
 
     db: Firestore = inject(Firestore);
-    auth: Auth = inject(Auth);
-
-    userState$ = user(this.auth);
-    currentUser: User | null = this.auth.currentUser
-
-    constructor() {
-        this.userState$.pipe().subscribe(userState => {
-            console.log('cSvc ctor userState sub: ', userState);
-            console.log('cSvc ctor currentUser: ', this.currentUser);
-
-        });
-    }
 
     getCourseById() {
 
     }
+
     // https://firebase.google.com/docs/firestore/query-data/get-data#get_all_documents_in_a_collection
     async getAllCourses() {
         const querySnapshot = await getDocs(collection(this.db, FirestoreCollection.COURSES));
@@ -98,12 +86,20 @@ export class CoursesService {
     // last document's seqNo and increment it, then populate the new course seqNo property
     async createCourseWithSeqNo(course: Course | Partial<Course>) {
         console.log('cSvc cC create course: ', course);
-        const collectionRef = collection(this.db, FirestoreCollection.COURSES);
+        const collectionRef = collection(this.db, FirestoreCollection.COURSES).withConverter(new CourseConverter());
         const q = query(collectionRef, orderBy('seqNo', 'desc'));
         console.log('cSvc cC query: ', q);
 
         const querySnapshot = await getDocs(q);
         console.log('querySnapshot docs: ', querySnapshot.docs);
+
+        let docs: Course[] = []
+        for (const doc of querySnapshot.docs) {
+            docs.push(doc.data())
+        }
+
+        console.log('cSvc cCWSN query snapshot converted docs: ', docs);
+
         const doc = querySnapshot.docs[0].data();
         const newSeqNo = doc['seqNo'] + 1;
         console.log('cSvc doc/new seqNo: ', doc, newSeqNo);
@@ -113,7 +109,7 @@ export class CoursesService {
 
         
 
-        const docRef = await addDoc(collectionRef, course);
+        const docRef = (await addDoc(collectionRef, course)).withConverter(new CourseConverter());
         console.log('cSvc cC docRef id: ', docRef.id);
         console.log('cSvc cC docRef: ', docRef);
     }

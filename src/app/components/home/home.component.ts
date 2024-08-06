@@ -33,6 +33,7 @@ export class HomeComponent extends FriendlyChatBaseComponent implements OnInit {
         //     this.coursesService.createLesson(lesson);
         // }
 
+        // this.createCourse();
         
 
     }
@@ -50,8 +51,8 @@ export class HomeComponent extends FriendlyChatBaseComponent implements OnInit {
 
     createCourse() {
         const newCourse: Partial<Course> = {
-            id: 100,
-            description: "New course dude",
+            id: 101,
+            description: "Newest new course dude - yay!",
             longDescription: "its a new course dude",
             iconUrl: "https://s3-us-west-1.amazonaws.com/angular-university/course-images/angular-core-in-depth-small.png",
             lessonsCount: 10,
