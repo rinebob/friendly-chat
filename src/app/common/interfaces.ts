@@ -10,3 +10,34 @@ export interface ChatMessage {
     imageUrl?: string;
     response?: string;
 };
+
+
+
+export interface Course {
+    id:number;
+    description:string;
+    longDescription: string;
+    iconUrl: string;
+    lessonsCount?: number;
+    categories:string[];
+    seqNo: number;
+    url: string;
+    price: number;
+
+    courseListIcon?: string;
+    promo?: boolean;
+    
+    
+}
+
+
+
+export interface Lesson {
+    id: number;
+    description: string;
+    duration?: string;
+    seqNo: number;
+    courseId: number;
+    videoId?: string;
+    
+}
