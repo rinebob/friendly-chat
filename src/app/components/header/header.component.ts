@@ -1,6 +1,8 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { ChatService } from 'src/app/services/chat.service';
+import { User } from '@angular/fire/auth';
+import { Observable } from 'rxjs';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -10,6 +12,6 @@ import { ChatService } from 'src/app/services/chat.service';
   imports: [AsyncPipe],
 })
 export class HeaderComponent {
-  chatService = inject(ChatService);
-  user$ = this.chatService.user$;
+  authService = inject(AuthService);
+  user$: Observable<User | null> = this.authService.user$;
 }

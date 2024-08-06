@@ -4,44 +4,47 @@ import { DocumentData } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ChatMessage } from 'src/app/common/interfaces';
+import { AuthService } from 'src/app/services/auth.service';
 import { ChatService } from 'src/app/services/chat.service';
 
 @Component({
-  selector: 'app-chat-page',
-  templateUrl: './chat-page.component.html',
-  styleUrls: ['./chat-page.component.css'],
-  standalone: true,
-  imports: [AsyncPipe, FormsModule]
+    selector: 'app-chat-page',
+    templateUrl: './chat-page.component.html',
+    styleUrls: ['./chat-page.component.css'],
+    standalone: true,
+    imports: [AsyncPipe, FormsModule]
 })
 export class ChatPageComponent implements OnInit {
-  chatService = inject(ChatService);
-//   messages$ = this.chatService.loadMessages() as Observable<DocumentData[]>;
-  messages$ = this.chatService.loadMessages() as Observable<ChatMessage[]>;
-  user$ = this.chatService.user$;
-  text = '';
+    authService = inject(AuthService);
+    chatService = inject(ChatService);
 
-  ngOnInit(): void {
-      this.messages$.pipe().subscribe(messages => {
-        console.log('cP ngOI messages sub: ', messages);
-    });
-    
-    this.user$.pipe().subscribe(user => {
-          console.log('cP ngOI user sub: ', user);
+    //   messages$ = this.chatService.loadMessages() as Observable<DocumentData[]>;
+    messages$ = this.chatService.loadMessages() as Observable<ChatMessage[]>;
+    user$ = this.authService.user$;
+    text = '';
 
-      });
-  }
+    ngOnInit(): void {
+        this.messages$.pipe().subscribe(messages => {
+            console.log('cP ngOI messages sub: ', messages);
+        });
 
-  sendTextMessage() {
-    console.log('c sTM send message: ', this.text);
-    this.chatService.saveTextMessage(this.text);
-    this.text = '';
-  }
+        this.user$.pipe().subscribe(user => {
+            console.log('cP ngOI user sub: ', user);
 
-  uploadImage(event: any) {
-    const imgFile: File = event.target.files[0];
-    if (!imgFile) {
-      return;
+        });
     }
-    this.chatService.saveImageMessage(imgFile);
-  }
+
+    sendTextMessage() {
+        console.log('c sTM send message: ', this.text);
+        this.chatService.saveTextMessage(this.text);
+        this.text = '';
+    }
+
+    uploadImage(event: any) {
+        const imgFile: File = event.target.files[0];
+        if (!imgFile) {
+            return;
+        }
+        this.chatService.saveImageMessage(imgFile);
+    }
 }
