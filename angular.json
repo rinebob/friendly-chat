@@ -78,14 +78,7 @@
             "styles": ["src/styles.css"],
             "scripts": []
           }
-        },
-        "deploy": {
-          "builder": "@angular/fire:deploy",
-          "options": {
-            "version": 2,
-            "browserTarget": "friendlychat:build:production"
-          }
-        }
+        }        
       }
     }
   }
