@@ -37,7 +37,7 @@ import {
     ref,
     uploadBytesResumable,
 } from '@angular/fire/storage';
-import { getToken, Messaging, onMessage } from '@angular/fire/messaging';
+import { getMessaging, getToken, Messaging, onMessage } from '@angular/fire/messaging';
 import { Router } from '@angular/router';
 import { ChatMessage } from '../common/interfaces';
 
@@ -47,47 +47,13 @@ import { ChatMessage } from '../common/interfaces';
 })
 export class ChatService {
     firestore: Firestore = inject(Firestore);
-    auth: Auth = inject(Auth);
     storage: Storage = inject(Storage);
+    auth: Auth = inject(Auth);
     // messaging: Messaging = inject(Messaging);
-    router: Router = inject(Router);
-    private provider = new GoogleAuthProvider();
+    // messaging = getMessaging()
     LOADING_IMAGE_URL = 'https://www.google.com/images/spin-32.gif?a';
 
-    // observable that is updated when the auth state changes
-    user$ = user(this.auth);
-    currentUser: User | null = this.auth.currentUser;
-    userSubscription: Subscription;
-
-    constructor() {
-        this.userSubscription = this.user$.subscribe((aUser: User | null) => {
-            this.currentUser = aUser;
-        });
-
-        this.user$.pipe().subscribe(user => {
-            console.log('cSvc ctor user sub: ', user);
-        });
-    }
-
-    // Login Friendly Chat.
-    login() {
-        signInWithPopup(this.auth, this.provider).then((result) => {
-            console.log('cSvc l login result: ', result);
-            const credential = GoogleAuthProvider.credentialFromResult(result);
-            this.router.navigate(['/', 'chat']);
-            return credential;
-        })
-    }
-
-    // Logout of Friendly Chat.
-    logout() {
-        signOut(this.auth).then(() => {
-            this.router.navigate(['/', 'login'])
-            console.log('signed out');
-        }).catch((error) => {
-            console.log('sign out error: ' + error);
-        })
-    }
+    constructor() {}
 
     // Adds a text or image message to Cloud Firestore.
     addMessage = async (
@@ -150,7 +116,30 @@ export class ChatService {
 
     // Saves a new message containing an image in Firebase.
     // This first saves the image in Firebase storage.
-    saveImageMessage = async (file: any) => { };
+    saveImageMessage = async(file: any) => {
+        try {
+          // 1 - Add a message with a loading icon that will get updated with the shared image.
+        //   const messageRef = await this.addMessage(null, this.LOADING_IMAGE_URL);
+          const messageRef = await this.addMessage('', this.LOADING_IMAGE_URL);
+      
+          // 2 - Upload the image to Cloud Storage.
+          const filePath = `${this.auth.currentUser?.uid}/${file.name}`;
+          const newImageRef = ref(this.storage, filePath);
+          const fileSnapshot = await uploadBytesResumable(newImageRef, file);
+      
+          // 3 - Generate a public URL for the file.
+          const publicImageUrl = await getDownloadURL(newImageRef);
+      
+          // 4 - Update the chat message placeholder with the image's URL.
+          messageRef ?
+          await updateDoc(messageRef, {
+            imageUrl: publicImageUrl,
+            storageUri: fileSnapshot.metadata.fullPath
+          }): null;
+        } catch (error) {
+          console.error('There was an error uploading a file to Cloud Storage:', error);
+        }
+      }
 
     async updateData(path: string, data: any) { }
 
