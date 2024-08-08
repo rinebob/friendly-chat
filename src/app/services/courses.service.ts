@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import { addDoc, collection, doc, DocumentData, Firestore, getDocs, limit, orderBy, query, setDoc } from '@angular/fire/firestore';
+import { addDoc, collection, doc, DocumentData, Firestore, getDoc, getDocs, limit, orderBy, query, setDoc, updateDoc, where } from '@angular/fire/firestore';
 import { Course, Lesson } from '../common/interfaces';
 import { FirestoreCollection } from '../common/constants';
-import { CourseConverter } from '../common/firestore-converters';
+import { CourseConverter, LessonConverter } from '../common/firestore-converters';
 
 @Injectable({
     providedIn: 'root'
@@ -11,123 +11,112 @@ export class CoursesService {
 
     db: Firestore = inject(Firestore);
 
-    getCourseById() {
-
-    }
-
     // https://firebase.google.com/docs/firestore/query-data/get-data#get_all_documents_in_a_collection
     async getAllCourses() {
-        const querySnapshot = await getDocs(collection(this.db, FirestoreCollection.COURSES));
+        const collectionRef = collection(this.db, FirestoreCollection.COURSES).withConverter(new CourseConverter());
+        const querySnapshot = await getDocs(collectionRef);
         console.log('cSvc gAC get all courses. querySnapshot: ', querySnapshot);
-        let docs: DocumentData[] = [];
+        console.log('cSvc gAC querySnapshot docs: ', querySnapshot.docs);
+        let docs: Course[] = [];
         querySnapshot.forEach(doc => {
             docs.push(doc.data());
-            console.log('doc.data(): ', doc.data())
-            console.log('doc.metadata(): ', doc.metadata)
+            // console.log('course: ', doc.data())
+            // console.log('doc.metadata(): ', doc.metadata)
         });
         return docs;
-
     }
 
-    // findCourseByUrl(url: string): Observable<Course | null> {
-    //     return this.db.collection(`courses`, 
-    //         ref => ref.where('url', '==', url))
-    //         .get()
-    //         .pipe(
-    //             map(results => {
-    //                 const courses = convertSnapshots<Course>(results);
-    //                 return courses.length === 1 ? courses[0] : null;
-    //             })
-    //         );
-    // }
-
-    getCourseByUrl()  {
-
+    async getAllLessons() {
+        const collectionRef = collection(this.db, FirestoreCollection.LESSONS).withConverter(new LessonConverter())
+        const querySnapshot = await getDocs(collectionRef);
+        // console.log('cSvc gAC get all lessons. querySnapshot: ', querySnapshot);
+        let docs: Lesson[] = [];
+        querySnapshot.forEach(doc => {
+            docs.push(doc.data());
+            // console.log('lesson: ', doc.data())
+            // console.log('doc.metadata(): ', doc.metadata)
+        });
+        return docs;
     }
 
-    // createCourse(newCourse: Partial<Course>, courseId?: string) {
-    //     return this.db.collection('courses',
-    //             ref => ref.orderBy('seqNo', 'desc').limit(1))
-    //         .get()
-    //         .pipe(
-    //             concatMap(result => {
-    //                 const courses = convertSnapshots<Course>(result);
-    //                 const lastCourseSeqNo = courses[0]?.seqNo ?? 0;
-    //                 const course = {
-    //                     ...newCourse,
-    //                     seqNo: lastCourseSeqNo + 1,
-    //                 }
+    // from https://firebase.google.com/docs/firestore/query-data/get-data#get_a_document
+    async getCourseById(id: string) {
+        // console.log('fCSto gCBI course by id: ', id);
+        if (!id) return
+        const docRef = doc(this.db, FirestoreCollection.COURSES, id).withConverter(new CourseConverter());
+        const docSnap = await getDoc(docRef);
+        return docSnap.data();
+    }
 
-    //                 let save$: Observable<any>;
+    async getLessonById(id: string) {
+        if (!id) return
+        const docRef = doc(this.db, FirestoreCollection.LESSONS, id);
+        const docSnap = await getDoc(docRef);
+        return docSnap.data();
+    }
 
-    //                 if (courseId) {
-    //                     save$ = from(this.db.doc(`courses/${courseId}`).set(course));
+    // from https://firebase.google.com/docs/firestore/query-data/queries#simple_queries
+    async getCourseByUrl(url: string)  {
+        const collectionRef = collection(this.db, FirestoreCollection.COURSES).withConverter(new CourseConverter());
+        const q = query(collectionRef, where('url', '==', url));
+        const querySnapshot = await getDocs(q);
+        let docs: Course[] = [];
+        querySnapshot.forEach(snap => {
+            docs.push(snap.data());
+        });
 
-    //                 } else {
-    //                     save$ = from (this.db.collection('courses').add(course));
-
-    //                 }
-
-    //                 return save$.pipe(
-    //                     map(res => {
-    //                         return {
-    //                             id: courseId ?? res.id,
-    //                             ...course
-    //                         }
-    //                     })
-    //                 );
-
-    //             })
-    //         )
-
-    // }
+        return docs[0]
+    }
 
     // Course needs to have the sequence no. property set, so we need to get the
     // last document's seqNo and increment it, then populate the new course seqNo property
     async createCourseWithSeqNo(course: Course | Partial<Course>) {
-        console.log('cSvc cC create course: ', course);
+        // console.log('cSvc cC create course: ', course);
         const collectionRef = collection(this.db, FirestoreCollection.COURSES).withConverter(new CourseConverter());
         const q = query(collectionRef, orderBy('seqNo', 'desc'));
-        console.log('cSvc cC query: ', q);
+        // console.log('cSvc cC query: ', q);
 
         const querySnapshot = await getDocs(q);
-        console.log('querySnapshot docs: ', querySnapshot.docs);
+        // console.log('querySnapshot docs: ', querySnapshot.docs);
 
         let docs: Course[] = []
         for (const doc of querySnapshot.docs) {
             docs.push(doc.data())
         }
 
-        console.log('cSvc cCWSN query snapshot converted docs: ', docs);
+        // console.log('cSvc cCWSN query snapshot converted docs: ', docs);
 
         const doc = querySnapshot.docs[0].data();
         const newSeqNo = doc['seqNo'] + 1;
-        console.log('cSvc doc/new seqNo: ', doc, newSeqNo);
+        // console.log('cSvc doc/new seqNo: ', doc, newSeqNo);
         
         course.seqNo = newSeqNo;
-        console.log('cSvc new course with seqNo: ', course);
+        // console.log('cSvc new course with seqNo: ', course);
 
         
 
         const docRef = (await addDoc(collectionRef, course)).withConverter(new CourseConverter());
-        console.log('cSvc cC docRef id: ', docRef.id);
-        console.log('cSvc cC docRef: ', docRef);
-    }
-
-    async createCourse(course: Course) {
-        // console.log('cSvc cC create course: ', course);
-        const collectionRef = collection(this.db, FirestoreCollection.COURSES);
-        const docRef = await addDoc(collectionRef, course);
         // console.log('cSvc cC docRef id: ', docRef.id);
         // console.log('cSvc cC docRef: ', docRef);
     }
 
+    async createCourse(course: Course) {
+        // console.log('cSvc cC create course: ', course);
+        // const collectionRef = collection(this.db, FirestoreCollection.COURSES);
+        const docRef = doc(collection(this.db, FirestoreCollection.COURSES))
+        // console.log('cSvc cC docRef id/ref: ', docRef.id, docRef);
+        course.id = docRef.id;
+        // console.log('cSvc cC course with id: ', course);
+        await setDoc(docRef, course);
+    }
+
     async createLesson(lesson: Lesson) {
-        console.log('cSvc cC create lesson: ', lesson);
-        const collectionRef = collection(this.db, FirestoreCollection.LESSONS);
-        const docRef = await addDoc(collectionRef, lesson);
-        console.log('cSvc cC docRef id: ', docRef.id);
-        console.log('cSvc cC docRef: ', docRef);
+        // console.log('cSvc cC create lesson: ', lesson);
+        const docRef = doc(collection(this.db, FirestoreCollection.LESSONS))
+        // console.log('cSvc cC docRef id/ref: ', docRef.id, docRef);
+        lesson.id = docRef.id;
+        // console.log('cSvc cC lesson with id: ', lesson);
+        await setDoc(docRef, lesson);
     }
 
     // updateCourse(courseId: string, changes: Partial<Course>) {
@@ -136,8 +125,9 @@ export class CoursesService {
 
     // }
 
-    updateCourse() {
-
+    async updateCourse(courseId: string, changes: Partial<Course>) {
+        const docRef = doc(this.db, FirestoreCollection.COURSES, courseId);
+        await updateDoc(docRef, {...changes});
     }
 
     // deleteCourse(courseId: string) {
