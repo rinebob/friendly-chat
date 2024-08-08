@@ -1,15 +1,16 @@
 
 
-@if(courses().length) {
+@if(friendlyChatStore.courseEntities()) {
 
     <div class="courses-container">
 
-        @for(course of courses(); track course.id) {
+        @for(course of friendlyChatStore.courseEntities(); track course.id) {
             
             <div class="course-container">
-    
+                
                 <h3>Course:</h3>
-                <p> <span>ID:: </span> {{course.id}}</p>
+                <p> <span>id: </span> {{course.id}}</p>
+                <p> <span>internal id: </span> {{course.internalId}}</p>
                 <p> <span>description: </span>{{course.description}}</p>
                 <p><span>longDescription: </span>{{course.longDescription}}</p>
                 <p><span>iconUrl: </span>{{course.iconUrl}}</p>
@@ -23,13 +24,14 @@
 
                 <div class="lessons-container">
 
-                    @for(lesson of getLessonsForCourse(course.id); track lesson.id) {
+                    @for(lesson of getLessonsForCourse(course.internalId); track lesson.id) {
             
                         @if(lesson) {
     
                             <div class="lesson-container">
     
                                 <p><span>id: </span>{{lesson.id}}</p>
+                                <p><span>internal id: </span>{{lesson.internalId}}</p>
                                 <p><span>description: </span>{{lesson.description}}</p>
                                 <p><span>duration: </span>{{lesson.duration}}</p>
                                 <p><span>seqNo: </span>{{lesson.seqNo}}</p>
