@@ -14,7 +14,8 @@ export interface ChatMessage {
 
 
 export interface Course {
-    id:number;
+    id: string;
+    internalId:number;
     description:string;
     longDescription: string;
     iconUrl: string;
@@ -33,7 +34,8 @@ export interface Course {
 
 
 export interface Lesson {
-    id: number;
+    id: string;
+    internalId: number;
     description: string;
     duration?: string;
     seqNo: number;
