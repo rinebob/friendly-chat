@@ -27,8 +27,8 @@ export class CoursesService implements OnDestroy {
     async getAllCourses() {
         const collectionRef = collection(this.db, FirestoreCollection.COURSES).withConverter(new CourseConverter());
         const querySnapshot = await getDocs(collectionRef);
-        console.log('cSvc gAC get all courses. querySnapshot: ', querySnapshot);
-        console.log('cSvc gAC querySnapshot docs: ', querySnapshot.docs);
+        // console.log('cSvc gAC get all courses. querySnapshot: ', querySnapshot);
+        // console.log('cSvc gAC querySnapshot docs: ', querySnapshot.docs);
         let docs: Course[] = [];
         querySnapshot.forEach(doc => {
             docs.push(doc.data());
@@ -61,11 +61,11 @@ export class CoursesService implements OnDestroy {
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             // let docs: Course[] = [];
             let docs: Course[] = this.friendlyChatStore.courseEntities();
-            console.log('cSvc gACL courses listener.  querySnapshot: ', querySnapshot);
+            // console.log('cSvc gACL courses listener.  querySnapshot: ', querySnapshot);
 
             querySnapshot.docChanges().forEach((change) => {
-                console.log('cSvc gACL snapshot change type: ', change.type)
-                console.log('cSvc gACL snapshot change: ', change);
+                // console.log('cSvc gACL snapshot change type: ', change.type)
+                // console.log('cSvc gACL snapshot change: ', change);
 
                 if (change.type === 'added') {
                     docs.push(change.doc.data())
@@ -83,7 +83,7 @@ export class CoursesService implements OnDestroy {
 
                 this.getLessonsForCourseListener(change.doc.data().id)
             })
-            console.log('cSvc gACL courses listener.  docs: ', docs.sort());
+            // console.log('cSvc gACL courses listener.  docs: ', docs.sort());
             this.friendlyChatStore.setAllCourses([...docs.sort(compareFn)]);
         });
         
@@ -96,10 +96,10 @@ export class CoursesService implements OnDestroy {
                 
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             let docs: Lesson[] = this.friendlyChatStore.lessonEntities();
-            console.log('cSvc gALL init store lesson entities: ', docs);
+            // console.log('cSvc gALL init store lesson entities: ', docs);
             querySnapshot.docChanges().forEach(change => {
-                console.log('cSvc gALL snapshot change type: ', change.type)
-                console.log('cSvc gALL snapshot change: ', change);
+                // console.log('cSvc gALL snapshot change type: ', change.type)
+                // console.log('cSvc gALL snapshot change: ', change);
     
                 if (change.type === 'added') {
                     docs.push(change.doc.data())
@@ -114,7 +114,7 @@ export class CoursesService implements OnDestroy {
                 }
             });
             this.friendlyChatStore.setAllLessons([...docs.sort(compareFn)]);
-            console.log('cSvc gALL final store lesson entities: ', this.friendlyChatStore.lessonEntities());
+            // console.log('cSvc gALL final store lesson entities: ', this.friendlyChatStore.lessonEntities());
         });
 
         this.subscriptions.push(unsubscribe);
@@ -165,39 +165,39 @@ export class CoursesService implements OnDestroy {
             docs.push(doc.data())
         }
 
-        console.log('cSvc cCWSN query snapshot converted docs: ', docs);
+        // console.log('cSvc cCWSN query snapshot converted docs: ', docs);
 
         const newDoc = querySnapshot.docs[0].data();
         const newSeqNo = newDoc['seqNo'] + 1;
-        console.log('cSvc doc/new seqNo: ', newDoc, newSeqNo);
+        // console.log('cSvc doc/new seqNo: ', newDoc, newSeqNo);
         
         course.seqNo = newSeqNo;
-        console.log('cSvc new course with seqNo: ', course);
+        // console.log('cSvc new course with seqNo: ', course);
 
         const docRef = doc(collectionRef);
-        console.log('cSvc cC docRef id/ref: ', docRef.id, docRef);
+        // console.log('cSvc cC docRef id/ref: ', docRef.id, docRef);
         course.id = docRef.id;
-        console.log('cSvc cC course with id: ', course);
+        // console.log('cSvc cC course with id: ', course);
         await setDoc(docRef, course);
     }
 
     async createCourse(course: Partial<Course>) {
-        console.log('cSvc cC create course - input: ', course);
+        // console.log('cSvc cC create course - input: ', course);
         // const collectionRef = collection(this.db, FirestoreCollection.COURSES);
         const docRef = doc(collection(this.db, FirestoreCollection.COURSES)).withConverter(new CourseConverter());
-        console.log('cSvc cC docRef/ id/ref: ', docRef.id, docRef);
+        // console.log('cSvc cC docRef/ id/ref: ', docRef.id, docRef);
         course.id = docRef.id;
-        console.log('cSvc cC course with id: ', course);
+        // console.log('cSvc cC course with id: ', course);
         await setDoc(docRef, course);
         return docRef.id;
     }
 
     async createLesson(courseId: string, lesson: Lesson) {
-        console.log('cSvc cC create lesson - input: ', lesson);
+        // console.log('cSvc cC create lesson - input: ', lesson);
         const docRef = doc(collection(this.db, FirestoreCollection.COURSES, courseId, FirestoreCollection.LESSONS)).withConverter(new LessonConverter());
         // console.log('cSvc cC docRef id/ref: ', docRef.id, docRef);
         lesson.id = docRef.id;
-        console.log('cSvc cC lesson with id: ', lesson);
+        // console.log('cSvc cC lesson with id: ', lesson);
         await setDoc(docRef, lesson);
     }
 
@@ -216,24 +216,24 @@ export class CoursesService implements OnDestroy {
     // get docs from a subcollection: https://firebase.google.com/docs/firestore/query-data/get-data#get_all_documents_in_a_subcollection
     // batch https://firebase.google.com/docs/firestore/manage-data/transactions#batched-writes
     async deleteCourseAndLessons(courseId: string) {
-        console.log('cSvc dCAL delete course and lessons for course id: ', courseId);
+        // console.log('cSvc dCAL delete course and lessons for course id: ', courseId);
         const batch = writeBatch(this.db);
         const courseDocRef = doc(this.db, FirestoreCollection.COURSES, courseId);
         
         const lessonsCollectionRef = collection(this.db, FirestoreCollection.COURSES, courseId, FirestoreCollection.LESSONS);
         const querySnapshot = await getDocs(lessonsCollectionRef);
-        console.log('cSvc dCAL lessons querySnapshot: ', querySnapshot);
+        // console.log('cSvc dCAL lessons querySnapshot: ', querySnapshot);
         
         querySnapshot.forEach(document => {
-            console.log('cSvc dCAL delete lesson snap doc: ', document);
+            // console.log('cSvc dCAL delete lesson snap doc: ', document);
             const docRef = doc(this.db, FirestoreCollection.COURSES, courseId, FirestoreCollection.LESSONS, document.id);
-            console.log('cSvc dCAL delete lesson docRef.id: ', docRef.id);
+            // console.log('cSvc dCAL delete lesson docRef.id: ', docRef.id);
             batch.delete(docRef);
         });
         
         batch.delete(courseDocRef);
         
-        console.log('cSvc dCAL batch: ', batch);
+        // console.log('cSvc dCAL batch: ', batch);
 
 
         await batch.commit();
