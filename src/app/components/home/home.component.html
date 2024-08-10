@@ -2,51 +2,72 @@
 
 @if(friendlyChatStore.courseEntities()) {
 
+    
     <div class="courses-container">
+        
+        <div class="buttons-container">
+            
+            <button (click)="initializeFirestoreEmulatorDb()">Initialize Emulator DB</button>
+            <button (click)="handleCreateCourse()">Create course</button>
+            <button (click)="enumerateCourses()">Enumerate courses</button>
+
+        </div>
 
         @for(course of friendlyChatStore.courseEntities(); track course.id) {
-            
-            <div class="course-container">
+
+            <div class="course-row">
                 
-                <h3>Course:</h3>
-                <p> <span>id: </span> {{course.id}}</p>
-                <p> <span>internal id: </span> {{course.internalId}}</p>
-                <p> <span>description: </span>{{course.description}}</p>
-                <p><span>longDescription: </span>{{course.longDescription}}</p>
-                <p><span>iconUrl: </span>{{course.iconUrl}}</p>
-                <p><span>lessonsCount: </span>{{course.lessonsCount}}</p>
-                <p><span>categories: </span>{{course.categories}}</p>
-                <p><span>seqNo: </span>{{course.seqNo}}</p>
-                <p><span>url: </span>{{course.url}}</p>
-                <p><span>price: </span>{{course.price}}</p>
-                <p><span>courseListIcon: </span>{{course.courseListIcon}}</p>
-                <p><span>promo: </span>{{course.promo}}</p>
-
-                <div class="lessons-container">
-
-                    @for(lesson of getLessonsForCourse(course.internalId); track lesson.id) {
-            
-                        @if(lesson) {
-    
-                            <div class="lesson-container">
-    
-                                <p><span>id: </span>{{lesson.id}}</p>
-                                <p><span>internal id: </span>{{lesson.internalId}}</p>
-                                <p><span>description: </span>{{lesson.description}}</p>
-                                <p><span>duration: </span>{{lesson.duration}}</p>
-                                <p><span>seqNo: </span>{{lesson.seqNo}}</p>
-                                <p><span>courseId: </span>{{lesson.courseId}}</p>
-                                <p><span>videoId: </span>{{lesson.videoId}}</p>
-    
-                            </div>
-            
-                        }
-            
-                    }
+                <div class="course-container">
                     
-                </div>
+                    <h3>Course:</h3>
+                    <p> <span>id: </span> {{course.id}}</p>
+                    <p> <span>internal id: </span> {{course.internalId}}</p>
+                    <p> <span>description: </span>{{course.description}}</p>
+                    <!-- <p><span>longDescription: </span>{{course.longDescription}}</p>
+                    <p><span>iconUrl: </span>{{course.iconUrl}}</p>
+                    <p><span>lessonsCount: </span>{{course.lessonsCount}}</p>
+                    <p><span>categories: </span>{{course.categories}}</p>
+                    <p><span>seqNo: </span>{{course.seqNo}}</p>
+                    <p><span>url: </span>{{course.url}}</p>
+                    <p><span>price: </span>{{course.price}}</p>
+                    <p><span>courseListIcon: </span>{{course.courseListIcon}}</p>
+                    <p><span>promo: </span>{{course.promo}}</p> -->
     
+                    <div class="lessons-container">
+    
+                        @for(lesson of getLessonsForCourse(course.internalId); track lesson.id) {
+                
+                            @if(lesson) {
+        
+                                <div class="lesson-container">
+        
+                                    <p><span>id: </span>{{lesson.id}}</p>
+                                    <p><span>internal id: </span>{{lesson.internalId}}</p>
+                                    <p><span>courseId: </span>{{lesson.courseId}}</p>
+                                    <p><span>description: </span>{{lesson.description}}</p>
+                                    <!-- <p><span>duration: </span>{{lesson.duration}}</p>
+                                    <p><span>seqNo: </span>{{lesson.seqNo}}</p>
+                                    <p><span>videoId: </span>{{lesson.videoId}}</p> -->
+        
+                                </div>
+                
+                            }
+                
+                        }
+                        
+                    </div>
+        
+                </div>
+
+                <div class="buttons-container">
+
+                    <button (click)="handleEditCourse(course)">Edit</button>
+                    <button (click)="handleDeleteCourseAndLessons(course.id)">Delete all</button>
+
+                </div>
+
             </div>
+            
         }
 
     </div>

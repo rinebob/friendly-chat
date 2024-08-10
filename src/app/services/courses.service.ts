@@ -1,15 +1,27 @@
-import { inject, Injectable } from '@angular/core';
-import { addDoc, collection, doc, DocumentData, Firestore, getDoc, getDocs, limit, orderBy, query, setDoc, updateDoc, where } from '@angular/fire/firestore';
+import { inject, Injectable, OnDestroy } from '@angular/core';
+import { addDoc, collection, deleteDoc, doc, DocumentData, Firestore, getDoc, getDocs, limit, onSnapshot, orderBy, query, setDoc, Unsubscribe, updateDoc, where, writeBatch } from '@angular/fire/firestore';
 import { Course, Lesson } from '../common/interfaces';
 import { FirestoreCollection } from '../common/constants';
 import { CourseConverter, LessonConverter } from '../common/firestore-converters';
+import { FriendlyChatStore } from '../store/friendly-chat-store';
+import { compareFn } from '../utils/utils-fc';
 
 @Injectable({
     providedIn: 'root'
 })
-export class CoursesService {
+export class CoursesService implements OnDestroy {
 
     db: Firestore = inject(Firestore);
+
+    friendlyChatStore = inject(FriendlyChatStore);
+
+    subscriptions: Unsubscribe[] = []
+
+    ngOnDestroy(): void {
+        for (const unsubscribe of this.subscriptions) {
+            unsubscribe();
+        }
+    }
 
     // https://firebase.google.com/docs/firestore/query-data/get-data#get_all_documents_in_a_collection
     async getAllCourses() {
@@ -39,6 +51,104 @@ export class CoursesService {
         return docs;
     }
 
+    // https://firebase.google.com/docs/firestore/query-data/listen
+    // https://firebase.google.com/docs/firestore/query-data/listen#listen_to_multiple_documents_in_a_collection
+
+    getAllCoursesListener() {
+        const collectionRef = collection(this.db, FirestoreCollection.COURSES).withConverter(new CourseConverter());
+        const q = query(collectionRef);
+        
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            // let docs: Course[] = [];
+            let docs: Course[] = this.friendlyChatStore.courseEntities();
+            console.log('cSvc gACL courses listener.  querySnapshot: ', querySnapshot);
+
+            querySnapshot.docChanges().forEach((change) => {
+                console.log('cSvc gACL snapshot change type: ', change.type)
+                console.log('cSvc gACL snapshot change: ', change);
+
+                if (change.type === 'added') {
+                    docs.push(change.doc.data())
+
+                } else if (change.type === 'modified') {
+                    docs = docs.filter(doc => doc.id !== change.doc.data().id);
+                    docs.push(change.doc.data());
+                    
+                } else {
+                    docs = docs.filter(doc => doc.id !== change.doc.data().id);
+                }
+                // const doc = change.doc.data()
+                // console.log('doc: ', doc);
+                // docs.push(doc)
+
+                this.getLessonsForCourseListener(change.doc.data().id)
+            })
+            console.log('cSvc gACL courses listener.  docs: ', docs.sort());
+            this.friendlyChatStore.setAllCourses([...docs.sort(compareFn)]);
+        });
+        
+        this.subscriptions.push(unsubscribe);
+    }
+
+    async getLessonsForCourseListener(courseId: string) {
+        const collectionRef = collection(this.db, FirestoreCollection.COURSES, courseId, FirestoreCollection.LESSONS).withConverter(new LessonConverter());
+        const q = query(collectionRef);
+                
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            let docs: Lesson[] = this.friendlyChatStore.lessonEntities();
+            console.log('cSvc gALL init store lesson entities: ', docs);
+            querySnapshot.docChanges().forEach(change => {
+                console.log('cSvc gALL snapshot change type: ', change.type)
+                console.log('cSvc gALL snapshot change: ', change);
+    
+                if (change.type === 'added') {
+                    docs.push(change.doc.data())
+    
+                } else if (change.type === 'modified') {
+                    docs = docs.filter(doc => doc.id !== change.doc.data().id);
+                    docs.push(change.doc.data());
+                    
+                } else {
+                    docs = docs.filter(doc => doc.id !== change.doc.data().id);
+    
+                }
+            });
+            this.friendlyChatStore.setAllLessons([...docs.sort(compareFn)]);
+            console.log('cSvc gALL final store lesson entities: ', this.friendlyChatStore.lessonEntities());
+        });
+
+        this.subscriptions.push(unsubscribe);
+    }
+
+    // async getAllLessonsListener() {
+    //     const collectionRef = collection(this.db, FirestoreCollection.LESSONS).withConverter(new LessonConverter());
+    //     const q = query(collectionRef);
+        
+        
+    //     const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    //         let docs: Lesson[] = this.friendlyChatStore.lessonEntities();
+    //         querySnapshot.docChanges().forEach(change => {
+    //             console.log('cSvc gALL snapshot change type: ', change.type)
+    //             console.log('cSvc gALL snapshot change: ', change);
+    
+    //             if (change.type === 'added') {
+    //                 docs.push(change.doc.data())
+    
+    //             } else if (change.type === 'modified') {
+    //                 docs = docs.filter(doc => doc.id !== change.doc.data().id);
+    //                 docs.push(change.doc.data());
+                    
+    //             } else {
+    //                 docs = docs.filter(doc => doc.id !== change.doc.data().id);
+    
+    //             }
+    //         });
+    //         this.friendlyChatStore.setAllLessons([...docs.sort(compareFn)]);
+    //     });
+
+    //     this.subscriptions.push(unsubscribe);
+    // }
+
     // from https://firebase.google.com/docs/firestore/query-data/get-data#get_a_document
     async getCourseById(id: string) {
         // console.log('fCSto gCBI course by id: ', id);
@@ -50,7 +160,7 @@ export class CoursesService {
 
     async getLessonById(id: string) {
         if (!id) return
-        const docRef = doc(this.db, FirestoreCollection.LESSONS, id);
+        const docRef = doc(this.db, FirestoreCollection.LESSONS, id).withConverter(new LessonConverter());
         const docSnap = await getDoc(docRef);
         return docSnap.data();
     }
@@ -84,91 +194,78 @@ export class CoursesService {
             docs.push(doc.data())
         }
 
-        // console.log('cSvc cCWSN query snapshot converted docs: ', docs);
+        console.log('cSvc cCWSN query snapshot converted docs: ', docs);
 
-        const doc = querySnapshot.docs[0].data();
-        const newSeqNo = doc['seqNo'] + 1;
-        // console.log('cSvc doc/new seqNo: ', doc, newSeqNo);
+        const newDoc = querySnapshot.docs[0].data();
+        const newSeqNo = newDoc['seqNo'] + 1;
+        console.log('cSvc doc/new seqNo: ', newDoc, newSeqNo);
         
         course.seqNo = newSeqNo;
-        // console.log('cSvc new course with seqNo: ', course);
+        console.log('cSvc new course with seqNo: ', course);
 
-        
-
-        const docRef = (await addDoc(collectionRef, course)).withConverter(new CourseConverter());
-        // console.log('cSvc cC docRef id: ', docRef.id);
-        // console.log('cSvc cC docRef: ', docRef);
-    }
-
-    async createCourse(course: Course) {
-        // console.log('cSvc cC create course: ', course);
-        // const collectionRef = collection(this.db, FirestoreCollection.COURSES);
-        const docRef = doc(collection(this.db, FirestoreCollection.COURSES))
-        // console.log('cSvc cC docRef id/ref: ', docRef.id, docRef);
+        const docRef = doc(collectionRef);
+        console.log('cSvc cC docRef id/ref: ', docRef.id, docRef);
         course.id = docRef.id;
-        // console.log('cSvc cC course with id: ', course);
+        console.log('cSvc cC course with id: ', course);
         await setDoc(docRef, course);
     }
 
-    async createLesson(lesson: Lesson) {
-        // console.log('cSvc cC create lesson: ', lesson);
-        const docRef = doc(collection(this.db, FirestoreCollection.LESSONS))
-        // console.log('cSvc cC docRef id/ref: ', docRef.id, docRef);
-        lesson.id = docRef.id;
-        // console.log('cSvc cC lesson with id: ', lesson);
-        await setDoc(docRef, lesson);
+    async createCourse(course: Partial<Course>) {
+        console.log('cSvc cC create course - input: ', course);
+        // const collectionRef = collection(this.db, FirestoreCollection.COURSES);
+        const docRef = doc(collection(this.db, FirestoreCollection.COURSES)).withConverter(new CourseConverter());
+        console.log('cSvc cC docRef/ id/ref: ', docRef.id, docRef);
+        course.id = docRef.id;
+        console.log('cSvc cC course with id: ', course);
+        await setDoc(docRef, course);
+        return docRef.id;
     }
 
-    // updateCourse(courseId: string, changes: Partial<Course>) {
-
-    //     return from(this.db.doc(`courses/${courseId}`).update(changes));
-
-    // }
+    async createLesson(courseId: string, lesson: Lesson) {
+        console.log('cSvc cC create lesson - input: ', lesson);
+        const docRef = doc(collection(this.db, FirestoreCollection.COURSES, courseId, FirestoreCollection.LESSONS)).withConverter(new LessonConverter());
+        // console.log('cSvc cC docRef id/ref: ', docRef.id, docRef);
+        lesson.id = docRef.id;
+        console.log('cSvc cC lesson with id: ', lesson);
+        await setDoc(docRef, lesson);
+    }
 
     async updateCourse(courseId: string, changes: Partial<Course>) {
         const docRef = doc(this.db, FirestoreCollection.COURSES, courseId);
         await updateDoc(docRef, {...changes});
     }
 
-    // deleteCourse(courseId: string) {
-    //     return from(this.db.doc(`courses/${courseId}`).delete());
-    // }
+    // from https://firebase.google.com/docs/firestore/manage-data/delete-data#delete_documents
+    async deleteCourse(id: string) {
+        const docRef = doc(this.db, FirestoreCollection.COURSES, id)
+        await deleteDoc(docRef);
+        //Note: this will not delete the associated lessons
+    }
 
-    deleteCourse() {}
+    // get docs from a subcollection: https://firebase.google.com/docs/firestore/query-data/get-data#get_all_documents_in_a_subcollection
+    // batch https://firebase.google.com/docs/firestore/manage-data/transactions#batched-writes
+    async deleteCourseAndLessons(courseId: string) {
+        console.log('cSvc dCAL delete course and lessons for course id: ', courseId);
+        const batch = writeBatch(this.db);
+        const courseDocRef = doc(this.db, FirestoreCollection.COURSES, courseId);
+        
+        const lessonsCollectionRef = collection(this.db, FirestoreCollection.COURSES, courseId, FirestoreCollection.LESSONS);
+        const querySnapshot = await getDocs(lessonsCollectionRef);
+        console.log('cSvc dCAL lessons querySnapshot: ', querySnapshot);
+        
+        querySnapshot.forEach(document => {
+            console.log('cSvc dCAL delete lesson snap doc: ', document);
+            const docRef = doc(this.db, FirestoreCollection.COURSES, courseId, FirestoreCollection.LESSONS, document.id);
+            console.log('cSvc dCAL delete lesson docRef.id: ', docRef.id);
+            batch.delete(docRef);
+        });
+        
+        batch.delete(courseDocRef);
+        
+        console.log('cSvc dCAL batch: ', batch);
 
-    // deleteCourseAndLessons(courseId: string) {
-    //     return this.db.collection(`courses/${courseId}/lessons`)
-    //         .get()
-    //         .pipe(
-    //             concatMap(results => {
-    //                 const lessons = convertSnapshots<Lesson>(results);
-                    
-    //                 const batch = this.db.firestore.batch();
-                    
-    //                 const courseRef = this.db.doc(`courses/${courseId}`).ref;
-                    
-    //                 console.log('cS dCAL courseRef: ', courseRef);
-                    
-    //                 batch.delete(courseRef);
 
-    //                 console.log('cS dCAL lessons: ', lessons);
-    //                 for (const lesson of lessons) {
-    //                     console.log('cS dCAL lesson: ', lesson);
-    //                     const lessonRef = this.db.doc(`courses/${courseId}/lessons/${lesson.id}`).ref;
-
-    //                     console.log('cS dCAL lessonRef: ', lessonRef);
-
-    //                     batch.delete(lessonRef);
-    //                 }
-
-    //                 return from(batch.commit());
-
-    //             })
-    //         );
-    // }
-
-    deleteCourseAndLessons() {
-
+        await batch.commit();
     }
 
     // loadCoursesByCategory(category: string): Observable<Course[]> {
