@@ -1,17 +1,15 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { User } from '@angular/fire/auth';
-import { Observable } from 'rxjs';
-import { AuthService } from 'src/app/services/auth.service';
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { FriendlyChatBaseComponent } from '../friendly-chat-base/friendly-chat-base.component';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
   standalone: true,
-  imports: [AsyncPipe],
+  imports: [AsyncPipe, RouterModule],
 })
-export class HeaderComponent {
-  authService = inject(AuthService);
-  user$: Observable<User | null> = this.authService.user$;
+export class HeaderComponent extends FriendlyChatBaseComponent {
+  
 }

@@ -120,9 +120,9 @@ export class HomeComponent extends FriendlyChatBaseComponent implements OnInit {
         // console.log('h gAC store courseEntityMap: ', this.friendlyChatStore.courseEntityMap());
     }
 
-    async getAllCoursesListener() {
-        await this.coursesService.getAllCoursesListener()
-    }
+    // async getAllCoursesListener() {
+    //     await this.coursesService.getAllCoursesListener()
+    // }
 
     async getCourseById(id: string) {
         const course = await this.coursesService.getCourseById(id);

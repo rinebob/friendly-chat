@@ -1,1 +1,40 @@
-<p>courses-page works!</p>
+<div class="courses-panel">
+
+    <div class="header">
+
+        <h2 class="title">All Courses</h2>
+
+        <!-- !!user() -->
+        @if(true) {
+            
+            <!-- user.role() === 'admin' -->
+            @if(true) {
+
+                <button mat-mini-fab color="accent" routerLink="/create-course">
+                    <mat-icon class="add-course-btn">add</mat-icon>
+                </button>
+
+            }
+
+        }
+
+    </div>
+
+    <mat-tab-group>
+
+        <mat-tab label="Beginners">
+
+            <app-courses-list [courses]="friendlyChatStore.beginnerCourses()" />
+            
+            
+        </mat-tab>
+        
+        <mat-tab label="Advanced">
+            
+            <app-courses-list [courses]="friendlyChatStore.advancedCourses()" />
+
+
+        </mat-tab>
+    </mat-tab-group>
+
+</div>

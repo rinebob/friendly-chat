@@ -8,6 +8,11 @@
                 </span>
             </a>
             @if(user$ | async; as user) {
+                <div class="header-buttons-container">
+                    <a type="button" routerLink="/chat" class="nav-button-link">Chat</a>
+                    <a type="button" routerLink="/home" class="nav-button-link">FB experiments</a>
+                    <a type="button" routerLink="/courses" class="nav-button-link">Courses</a>
+                </div>
                 <div class="flex flex-wrap items-center content-center auth">
                     <div class="hidden sm:flex flex-wrap items-center content-center text-white">
                         <img class="w-10 h-10 rounded-full" [src]="user?.photoURL"
