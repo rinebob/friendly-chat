@@ -120,35 +120,6 @@ export class CoursesService implements OnDestroy {
         this.subscriptions.push(unsubscribe);
     }
 
-    // async getAllLessonsListener() {
-    //     const collectionRef = collection(this.db, FirestoreCollection.LESSONS).withConverter(new LessonConverter());
-    //     const q = query(collectionRef);
-        
-        
-    //     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    //         let docs: Lesson[] = this.friendlyChatStore.lessonEntities();
-    //         querySnapshot.docChanges().forEach(change => {
-    //             console.log('cSvc gALL snapshot change type: ', change.type)
-    //             console.log('cSvc gALL snapshot change: ', change);
-    
-    //             if (change.type === 'added') {
-    //                 docs.push(change.doc.data())
-    
-    //             } else if (change.type === 'modified') {
-    //                 docs = docs.filter(doc => doc.id !== change.doc.data().id);
-    //                 docs.push(change.doc.data());
-                    
-    //             } else {
-    //                 docs = docs.filter(doc => doc.id !== change.doc.data().id);
-    
-    //             }
-    //         });
-    //         this.friendlyChatStore.setAllLessons([...docs.sort(compareFn)]);
-    //     });
-
-    //     this.subscriptions.push(unsubscribe);
-    // }
-
     // from https://firebase.google.com/docs/firestore/query-data/get-data#get_a_document
     async getCourseById(id: string) {
         // console.log('fCSto gCBI course by id: ', id);
@@ -285,7 +256,19 @@ export class CoursesService implements OnDestroy {
     //         );
     // }
 
-    loadCoursesByCategory() {
+    // Note: this is unused.  Created computed properties for beg and adv in FriendlyChatStore
+    async loadCoursesByCategory(category: string) {
+        const courses: Course[] = [];
+
+        const coursesCollectionRef = collection(this.db, FirestoreCollection.COURSES).withConverter(new CourseConverter());
+        const q = query(coursesCollectionRef, where('categories', 'array-contains', category));
+
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(snap => {
+            courses.push(snap.data());
+        });
+
+        return courses;
 
     }
 
