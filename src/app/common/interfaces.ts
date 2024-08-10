@@ -43,3 +43,5 @@ export interface Lesson {
     videoId?: string;
     
 }
+
+export type CourseOrLesson = Course | Lesson;
