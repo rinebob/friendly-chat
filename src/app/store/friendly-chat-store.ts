@@ -32,6 +32,15 @@ export const FriendlyChatStore = signalStore(
             const advancedCourses = courses.filter(course => course.categories.includes('ADVANCED'))
             return advancedCourses;
         }),
+
+        selectedCourseWithLessons: computed(() => {
+            const courses = state.courseEntities();
+            const lessons = state.lessonEntities();
+            const selectedCourseId = state.selectedCourseId();
+            const selectedCourse = courses.find(course => course.id === selectedCourseId);
+            const lessonsForCourse = lessons.filter(lesson => lesson.courseId === selectedCourse?.internalId);
+            return {selectedCourse, lessonsForCourse};
+        }),
     })),
     
     withMethods((store) => ({

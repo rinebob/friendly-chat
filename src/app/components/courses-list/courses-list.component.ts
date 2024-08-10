@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import { RouterModule } from '@angular/router';
 import { Course } from 'src/app/common/interfaces';
+import { FriendlyChatBaseComponent } from '../friendly-chat-base/friendly-chat-base.component';
 
 @Component({
   selector: 'app-courses-list',
@@ -13,7 +14,7 @@ import { Course } from 'src/app/common/interfaces';
   styleUrl: './courses-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CoursesListComponent implements OnInit {
+export class CoursesListComponent extends FriendlyChatBaseComponent implements OnInit {
 
     courses = input.required<Course[]>();
 
@@ -24,6 +25,11 @@ export class CoursesListComponent implements OnInit {
 
         }
 
+    }
+
+    handleViewCourse(courseId: string) {
+        this.friendlyChatStore.setSelectedCourseId(courseId);
+        this.router.navigate(['/view-course', courseId])
     }
 
     handleEditCourse(course: Course) {
