@@ -1,1 +1,55 @@
-<p>courses-list works!</p>
+
+@for(course of courses(); track course.internalId) {
+
+    <mat-card class="course-card mat-elevation-z10">
+
+        <mat-card-header>
+
+            <mat-card-title>{{course.description}}</mat-card-title>
+        
+        </mat-card-header>
+
+        <img mat-card-image [src]="course.iconUrl">
+
+        <mat-card-content>
+            
+            <p>{{course.longDescription}}</p>
+          
+        </mat-card-content>
+
+        <mat-card-actions class="course-actions">
+
+            <button mat-button class="mat-raised-button mat-primary" [routerLink]="['/courses', course.url]">
+                VIEW COURSE
+            </button>
+
+            <!-- user.role as roles -->
+            @if(true) {
+
+                <!-- roles['admin'] === true -->
+                @if(true) {
+
+                    <div class="crud-buttons-container">
+
+                        <button mat-button class="mat-raised-button mat-secondary"
+                                (click)="handleEditCourse(course)"
+                        >
+                            EDIT
+                        </button>
+    
+                        <button mat-button class="mat-raised-button mat-secondary"
+                                (click)="handleDeleteCourse(course)"
+                        >
+                            DELETE
+                        </button>
+
+                    </div>
+
+                }
+
+            }
+
+        </mat-card-actions>
+
+    </mat-card>
+}

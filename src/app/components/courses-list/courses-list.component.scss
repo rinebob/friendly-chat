@@ -1,0 +1,19 @@
+
+
+.course-card {
+    margin: 20px 10px;
+}
+
+.course-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    
+    .crud-buttons-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+    }
+}
