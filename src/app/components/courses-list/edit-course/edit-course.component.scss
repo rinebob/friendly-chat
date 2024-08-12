@@ -1,0 +1,42 @@
+
+:host {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+
+    h2 {
+        margin: 20px 0 0 20px;
+    }
+
+    mat-dialog-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        gap: 20px;
+        width: 100%;
+    }
+
+    .mat-mdc-form-field {
+        display: block;
+        width: 100%;
+    }
+    
+    .promo {
+      margin-bottom: 20px;
+    }
+    
+    textarea {
+        height: 100px;
+        resize: vertical;
+    }
+    
+    mat-dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 20px;
+        width: 100%;
+    }
+
+}

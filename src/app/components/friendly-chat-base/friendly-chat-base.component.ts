@@ -37,9 +37,9 @@ export class FriendlyChatBaseComponent {
 
         this.getAllCoursesListener();
 
-        effect(() => {
-            this.effect();
-        });
+        // effect(() => {
+        //     this.effect();
+        // });
     }
 
     effect() {
