@@ -1,1 +1,52 @@
-<p>edit-course works!</p>
+
+<h2 mat-dialog-title>Edit Course</h2>
+
+<mat-dialog-content [formGroup]="form">
+
+    <mat-form-field>
+
+        <label for="description">Course Title</label>
+        <input matInput
+               placeholder=" Title"
+               formControlName="description"
+        >
+
+    </mat-form-field>
+
+    <label for="promo">Promotional course?</label>
+    <mat-slide-toggle class="promo" 
+                    color="primary"
+                    formControlName="promo"
+                    >
+        Course in promotion?
+    </mat-slide-toggle>
+
+    <mat-form-field>
+
+        <label for="longDescription">Course description</label>
+        <textarea matInput 
+                    placeholder="Description"
+                    formControlName="longDescription"
+                    >
+
+        </textarea>
+
+    </mat-form-field>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+
+    <button mat-raised-button 
+        (click)="handleCloseDialog()"
+    >
+        Close
+    </button>
+
+    <button mat-raised-button color="primary"
+            (click)="handleSaveCourse()"
+    >
+        Save
+    </button>
+
+</mat-dialog-actions>
