@@ -9,6 +9,7 @@ import { provideStorage, getStorage, connectStorageEmulator } from '@angular/fir
 import { routes } from './app.routes';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -44,6 +45,8 @@ export const appConfig: ApplicationConfig = {
         
     }),
     // provideMessaging(() => getMessaging()),
-    provideRouter(routes), provideAnimationsAsync(),
+    provideRouter(routes),
+    provideAnimationsAsync(),
+    provideNativeDateAdapter()
   ],
 };

@@ -23,6 +23,13 @@ export class CoursesService implements OnDestroy {
         }
     }
 
+    createNewDocRef(collectionName: FirestoreCollection) {
+        const collectionRef = collection(this.db, collectionName).withConverter(new CourseConverter());
+        const docRef = doc(collectionRef);
+        console.log('cSvc cNDR create doc ref for collection. colln/docRef: ', collectionName, docRef);
+        return docRef;
+    }
+
     // https://firebase.google.com/docs/firestore/query-data/get-data#get_all_documents_in_a_collection
     async getAllCourses() {
         const collectionRef = collection(this.db, FirestoreCollection.COURSES).withConverter(new CourseConverter());
@@ -152,32 +159,32 @@ export class CoursesService implements OnDestroy {
     // Course needs to have the sequence no. property set, so we need to get the
     // last document's seqNo and increment it, then populate the new course seqNo property
     async createCourseWithSeqNo(course: Course | Partial<Course>) {
-        // console.log('cSvc cC create course: ', course);
+        console.log('cSvc cC create course: ', course);
         const collectionRef = collection(this.db, FirestoreCollection.COURSES).withConverter(new CourseConverter());
         const q = query(collectionRef, orderBy('seqNo', 'desc'));
-        // console.log('cSvc cC query: ', q);
+        console.log('cSvc cC query: ', q);
 
         const querySnapshot = await getDocs(q);
-        // console.log('querySnapshot docs: ', querySnapshot.docs);
+        console.log('querySnapshot docs: ', querySnapshot.docs);
 
         let docs: Course[] = []
         for (const doc of querySnapshot.docs) {
             docs.push(doc.data())
         }
 
-        // console.log('cSvc cCWSN query snapshot converted docs: ', docs);
+        console.log('cSvc cCWSN query snapshot converted docs: ', docs);
 
         const newDoc = querySnapshot.docs[0].data();
         const newSeqNo = newDoc['seqNo'] + 1;
-        // console.log('cSvc doc/new seqNo: ', newDoc, newSeqNo);
+        console.log('cSvc doc/new seqNo: ', newDoc, newSeqNo);
         
         course.seqNo = newSeqNo;
-        // console.log('cSvc new course with seqNo: ', course);
+        console.log('cSvc new course with seqNo: ', course);
 
         const docRef = doc(collectionRef);
-        // console.log('cSvc cC docRef id/ref: ', docRef.id, docRef);
+        console.log('cSvc cC docRef id/ref: ', docRef.id, docRef);
         course.id = docRef.id;
-        // console.log('cSvc cC course with id: ', course);
+        console.log('cSvc cC course with id: ', course);
         await setDoc(docRef, course);
     }
 

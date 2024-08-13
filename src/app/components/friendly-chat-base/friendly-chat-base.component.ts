@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { User } from '@angular/fire/auth';
+import { Storage } from '@angular/fire/storage';
+import { FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Course, Lesson } from 'src/app/common/interfaces';
@@ -19,11 +21,13 @@ import { FriendlyChatStore } from 'src/app/store/friendly-chat-store';
 })
 export class FriendlyChatBaseComponent {
 
+    // fb = inject(FormBuilder);
     router = inject(Router);
 
     friendlyChatStore = inject(FriendlyChatStore);
     coursesService = inject(CoursesService);
     authService = inject(AuthService);
+    storage = inject(Storage);
 
     user$: Observable<User | null> = this.authService.user$;
     
