@@ -27,6 +27,8 @@ export interface Course {
 
     courseListIcon?: string;
     promo?: boolean;
+    createdAt?: Timestamp;
+    promoStartAt?: Timestamp;
     
     
 }
