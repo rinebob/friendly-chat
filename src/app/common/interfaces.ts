@@ -1,4 +1,36 @@
 import { FieldValue, Timestamp } from "@angular/fire/firestore";
+import { AbstractControl } from "@angular/forms";
+
+export interface LoginForm {
+    email: AbstractControl<any, any>;
+    password: AbstractControl<any, any>;
+}
+export interface LoginCredentials {
+    email: string;
+    password: string;
+}
+
+// TODO: see if AngularFire has this already available
+export interface RbFirebaseAuthErrorResponse {
+    error: RbFirebaseAuthError;         // Rb = rinebob - to distinguish from actual Firebase types
+  }
+
+  export interface RbFirebaseAuthError {
+    code: number;
+    message: string;
+    errors: {[key: string]: string}[]
+  }
+
+  export type UserStatus = 'new' | 'existing';
+
+  export enum SignInMessage {
+    NEW = 'Enter email and password to create a new account',
+    EXISTING = 'Sign in with email and password',
+    ACCOUNT_EXISTS = 'Already signed up? Click here to sign in',
+    NO_ACCOUNT = 'Don\'t have an account? Click here',
+    SIGN_IN = 'Sign in',
+    CREATE_ACCOUNT = 'Create account',
+  }
 
 
 export interface ChatMessage {
@@ -19,6 +51,7 @@ export interface Course {
     description:string;
     longDescription: string;
     iconUrl: string;
+    priorityImage?: boolean;
     lessonsCount?: number;
     categories:string[];
     seqNo: number;
