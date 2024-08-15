@@ -10,6 +10,7 @@ import { routes } from './app.routes';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideNativeDateAdapter } from '@angular/material/core';
+import { IMAGE_CONFIG } from '@angular/common';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -47,6 +48,14 @@ export const appConfig: ApplicationConfig = {
     // provideMessaging(() => getMessaging()),
     provideRouter(routes),
     provideAnimationsAsync(),
-    provideNativeDateAdapter()
+    provideNativeDateAdapter(),
+    {
+        // disables ngOpitimizedImage warnings in console (theoretically)
+        provide: IMAGE_CONFIG,
+        useValue: {
+          disableImageSizeWarning: true, 
+          disableImageLazyLoadWarning: true
+        }
+      },
   ],
 };

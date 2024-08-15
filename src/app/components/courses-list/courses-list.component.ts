@@ -7,11 +7,17 @@ import { Course } from 'src/app/common/interfaces';
 import { FriendlyChatBaseComponent } from '../friendly-chat-base/friendly-chat-base.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { EditCourseComponent } from './edit-course/edit-course.component';
+import { NgOptimizedImage } from '@angular/common';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { skip } from 'rxjs';
 
 @Component({
   selector: 'app-courses-list',
   standalone: true,
-  imports: [RouterModule, MatButtonModule, MatCardModule],
+  imports: [
+    RouterModule, NgOptimizedImage,
+    MatButtonModule, MatCardModule,
+],
   templateUrl: './courses-list.component.html',
   styleUrl: './courses-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -21,13 +27,14 @@ export class CoursesListComponent extends FriendlyChatBaseComponent implements O
     dialog = inject(MatDialog);
 
     courses = input.required<Course[]>();
+    coursesList$ = toObservable(this.courses);
 
     ngOnInit(): void {
-        if (this.courses().length) {
-            console.log('cL ngOI category: ', this.courses()[0].categories);
-            console.log('cL ngOI input courses: ', this.courses());
 
-        }
+        // this.coursesList$.pipe(skip(1)).subscribe(courses => {
+        //     console.log('cL ngOI input courses$ sub: ', courses);
+        //     console.log('cL ngOI category: ', this.courses()[0].categories);
+        // });
 
     }
 
