@@ -17,7 +17,8 @@ const redirectLoggedInToHome = () => redirectLoggedInTo(['chat']);
 export const routes: Routes = [
   {
     path: '',
-    component: LoginPageComponent,
+    redirectTo: 'login',
+    pathMatch: 'full',
     // canActivate: [AuthGuard],
     // data: { authGuardPipe: redirectLoggedInToHome },
   },
@@ -54,6 +55,13 @@ export const routes: Routes = [
   {
     path: 'create-course',
     component: CreateCourseComponent,
+    // canActivate: [AuthGuard],
+    // data: { authGuardPipe: redirectUnauthorizedToLogin },
+  },
+  {
+    path: '**',
+    redirectTo: 'login',
+    pathMatch: 'full',
     // canActivate: [AuthGuard],
     // data: { authGuardPipe: redirectUnauthorizedToLogin },
   },
