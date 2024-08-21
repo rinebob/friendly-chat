@@ -21,6 +21,10 @@ export interface RbFirebaseAuthErrorResponse {
     errors: {[key: string]: string}[]
   }
 
+  export interface UserRoles {
+    admin:boolean;
+  }
+
   export type UserStatus = 'new' | 'existing';
 
   export enum SignInMessage {
