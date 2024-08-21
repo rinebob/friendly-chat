@@ -23,12 +23,10 @@
                 VIEW COURSE
             </button>
 
-            <!-- user.role as roles -->
-            @if(true) {
-
-                <!-- roles['admin'] === true -->
-                @if(true) {
-
+            @if(authService.isLoggedIn$ | async) {
+            
+                @if(authService.roles()?.admin === true) {
+    
                     <div class="crud-buttons-container">
 
                         <button mat-button class="mat-raised-button mat-secondary"
@@ -44,9 +42,9 @@
                         </button>
 
                     </div>
-
+    
                 }
-
+    
             }
 
         </mat-card-actions>

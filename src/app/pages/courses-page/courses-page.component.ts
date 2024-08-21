@@ -1,3 +1,4 @@
+import { AsyncPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,7 +10,10 @@ import { FriendlyChatBaseComponent } from 'src/app/components/friendly-chat-base
 @Component({
   selector: 'app-courses-page',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, MatTabsModule, CoursesListComponent, RouterModule],
+  imports: [
+    AsyncPipe,
+    MatButtonModule, MatIconModule, MatTabsModule, CoursesListComponent, RouterModule,
+],
   templateUrl: './courses-page.component.html',
   styleUrl: './courses-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

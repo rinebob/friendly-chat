@@ -7,16 +7,18 @@ import { Course } from 'src/app/common/interfaces';
 import { FriendlyChatBaseComponent } from '../friendly-chat-base/friendly-chat-base.component';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
 import { EditCourseComponent } from './edit-course/edit-course.component';
-import { NgOptimizedImage } from '@angular/common';
+import { AsyncPipe, NgOptimizedImage } from '@angular/common';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { skip } from 'rxjs';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-courses-list',
   standalone: true,
   imports: [
+    AsyncPipe,
     RouterModule, NgOptimizedImage,
-    MatButtonModule, MatCardModule,
+    MatButtonModule, MatCardModule, MatIconModule,
 ],
   templateUrl: './courses-list.component.html',
   styleUrl: './courses-list.component.scss',

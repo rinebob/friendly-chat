@@ -4,11 +4,9 @@
 
         <h2 class="title">All Courses</h2>
 
-        <!-- !!user() -->
-        @if(true) {
+        @if(authService.isLoggedIn$ | async) {
             
-            <!-- user.role() === 'admin' -->
-            @if(true) {
+            @if(authService.roles()?.admin === true) {
 
                 <button mat-mini-fab color="accent" routerLink="/create-course">
                     <mat-icon class="add-course-btn">add</mat-icon>
