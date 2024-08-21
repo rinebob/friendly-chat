@@ -1,7 +1,8 @@
-import { inject, Injectable } from '@angular/core';
-import { Auth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup, signOut, user } from '@angular/fire/auth';
+import { inject, Injectable, signal } from '@angular/core';
+import { Auth, createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut, User, user } from '@angular/fire/auth';
 import { Router } from '@angular/router';
-import { LoginCredentials, RbFirebaseAuthError, RbFirebaseAuthErrorResponse, UserStatus } from '../common/interfaces';
+import { LoginCredentials, RbFirebaseAuthError, UserRoles, UserStatus } from '../common/interfaces';
+import { map, Observable, of } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
@@ -11,13 +12,51 @@ export class AuthService {
     router: Router = inject(Router);
 
     auth: Auth = inject(Auth);
+    currentUser: User | null;
     user$ = user(this.auth);
+
+    isLoggedIn$: Observable<boolean>;
+    isLoggedOut$: Observable<boolean>;
+    pictureUrl$: Observable<string>;
+    roles = signal<UserRoles | undefined>(undefined);
+
     private provider = new GoogleAuthProvider();
 
     constructor() {
-        // this.user$.pipe().subscribe(user => {
-        //     console.log('aSvc ctor user sub: ', user);
-        // });
+
+        this.isLoggedIn$ = this.user$.pipe(map(user => !!user));
+        this.isLoggedOut$ = this.user$.pipe(map(user => !user));
+        this.pictureUrl$ = this.user$.pipe(map(user => user?.photoURL ?? ''));
+        this.roles.set({admin: false});
+        this.currentUser = this.auth.currentUser;
+
+        onAuthStateChanged(this.auth, (user) => {
+            if (user) {
+                console.log('aSvc ctor user is present. user: ', user);
+                console.log('currentUser: ', this.auth.currentUser);
+                console.log('emailVerified: ', user.emailVerified);
+                console.log('isAnonymous: ', user.isAnonymous);
+                console.log('metadata: ', user.metadata);
+                console.log('providerData: ', user.providerData);
+                console.log('refreshToken: ', user.refreshToken);
+                console.log('tenantId: ', user.tenantId);
+
+                this.auth.currentUser?.getIdTokenResult().then((idTokenResult) => {
+                    if(idTokenResult.claims['admin']) {
+                        console.log('aSvc ctor current user idTokenResult. user is admin. idTokenResult: ', idTokenResult);
+                        this.roles.set({admin: true})
+                    } else {
+                        console.log('aSvc ctor current user idTokenResult. user is not admin. idTokenResult: ', idTokenResult);
+        
+                    }
+                })
+
+
+            } else {
+                console.log('aSvc ctor no user is present');
+
+            }
+        })
     }
 
     login() {
@@ -40,11 +79,11 @@ export class AuthService {
     }
 
     async handleUserLogin(credentials: LoginCredentials, userStatus: UserStatus) {
-        console.log('aSvc sIWEAP em/pw creds: ', credentials);
+        // console.log('aSvc sIWEAP em/pw creds: ', credentials);
         if (userStatus === 'new') {
             try {
                 const userCredential = await createUserWithEmailAndPassword(this.auth, credentials.email, credentials.password);
-                console.log('aSvc sIWEAP user/credential: ', userCredential.user, userCredential);
+                // console.log('aSvc sIWEAP user/credential: ', userCredential.user, userCredential);
     
                 this.router.navigate(['/courses']);
             }

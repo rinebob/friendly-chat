@@ -1,4 +1,4 @@
-import { RouterModule, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import {
   AuthGuard,
   redirectLoggedInTo,
@@ -12,21 +12,19 @@ import { CourseComponent } from './components/courses-list/course/course.compone
 import { CreateCourseComponent } from './components/courses-list/create-course/create-course.component';
 
 const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['login']);
-const redirectLoggedInToHome = () => redirectLoggedInTo(['chat']);
+const redirectLoggedInToCourses = () => redirectLoggedInTo(['courses']);
 
 export const routes: Routes = [
   {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full',
-    // canActivate: [AuthGuard],
-    // data: { authGuardPipe: redirectLoggedInToHome },
   },
   {
     path: 'login',
     component: LoginPageComponent,
-    // canActivate: [AuthGuard],
-    // data: { authGuardPipe: redirectLoggedInToHome },
+    canActivate: [AuthGuard],
+    data: { authGuardPipe: redirectLoggedInToCourses },
   },
   {
     path: 'chat',
@@ -43,26 +41,24 @@ export const routes: Routes = [
   {
     path: 'courses',
     component: CoursesPageComponent,
-    // canActivate: [AuthGuard],
-    // data: { authGuardPipe: redirectUnauthorizedToLogin },
+    canActivate: [AuthGuard],
+    data: { authGuardPipe: redirectUnauthorizedToLogin },
   },
   {
     path: 'view-course/:url',
     component: CourseComponent,
-    // canActivate: [AuthGuard],
-    // data: { authGuardPipe: redirectUnauthorizedToLogin },
+    canActivate: [AuthGuard],
+    data: { authGuardPipe: redirectUnauthorizedToLogin },
   },
   {
     path: 'create-course',
     component: CreateCourseComponent,
-    // canActivate: [AuthGuard],
-    // data: { authGuardPipe: redirectUnauthorizedToLogin },
+    canActivate: [AuthGuard],
+    data: { authGuardPipe: redirectUnauthorizedToLogin },
   },
   {
     path: '**',
     redirectTo: 'login',
     pathMatch: 'full',
-    // canActivate: [AuthGuard],
-    // data: { authGuardPipe: redirectUnauthorizedToLogin },
   },
 ];
