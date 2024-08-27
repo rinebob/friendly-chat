@@ -38,6 +38,8 @@ export class CoursesListComponent extends FriendlyChatBaseComponent implements O
         //     console.log('cL ngOI category: ', this.courses()[0].categories);
         // });
 
+        const lessons = this.coursesService.onReadCollectionGroup();
+
     }
 
     handleViewCourse(courseId: string) {

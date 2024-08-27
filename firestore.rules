@@ -1,9 +1,90 @@
 rules_version = '2';
 
 service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write;
+    match /databases/{database}/documents {
+
+        function isAuthenticated() {
+            return request.auth.uid != null;
+        }
+
+        function isNonEmptyString(fieldName) {
+            return request.resource.data[fieldName] is string && 
+            request.resource.data[fieldName].size() > 0
+        }
+
+        function isValidCourse() {
+            return request.resource.data.seqNo is number &&
+            request.resource.data.seqNo >= 0 &&
+            isNonEmptyString('url')
+        }
+
+        // function isAdmin() {
+        //     return debug(
+        //         debug(isAuthenticated()) && debug(debug('admin' in request.auth.token)) && debug(request.auth.token.admin == true));
+        // }
+
+        function isAdmin() {
+            return isAuthenticated() && 'admin' in request.auth.token && request.auth.token.admin == true;
+        }
+
+        function isKnownUser() {
+            return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        }
+
+        function getAuth() {
+            return request.auth;
+        }
+
+        match /courses/{courseId} {
+            // allow read, write;
+            // allow read;
+            // allow get;
+            // allow list: if false;
+            // allow list;
+
+            // courses are readonly to logged in users
+            // allow read: if request.auth.uid != null;
+            // allow read: if isAuthenticated();
+            // allow read: if isKnownUser();
+            allow read: if isKnownUser();
+
+            // allow read: if debug(
+            //     debug(request.auth.token) != null && debug(request.auth.token.admin) == true
+            // )
+
+            // allow create: if false;
+            // allow update: if false;
+            // allow delete: if false;
+            // allow write: if isAuthenticated() && isValidCourse();
+
+            // allow read: if debug(
+            //         debug(debug(request.auth) != null) && debug(exists(/databases/$(database)/documents/users/$(request.auth.uid)))
+            //     )
+
+            allow create, update, delete: if isAdmin();
+            // allow create, update: if isValidCourse() && isAdmin();
+            // allow delete: if isAdmin();
+            // allow delete: if request.auth != null &&  request.auth.token.admin == true;
+            // allow delete: if debug(
+            //     debug(request.auth) != null &&  debug(request.auth.token.admin) == true
+            // ) 
+
+            
+            match /lessons/{lessonId} {
+                allow read: if request.auth.uid != null;
+
+                allow create: if false;
+                allow update: if false;
+                allow delete: if false;
+            }
+
+        }
+
+        // for collection group queries on lessons collection
+        match /{path=**}/lessons/{lessonId} {
+            allow read: if isKnownUser();
+        }
+
+
     }
-  }
 }

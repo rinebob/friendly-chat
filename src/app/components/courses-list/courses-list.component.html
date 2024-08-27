@@ -9,7 +9,11 @@
         
         </mat-card-header>
 
-        <img mat-card-image [ngSrc]="course.iconUrl" width="510" height="287" priority="true">
+        @if(course.iconUrl) {
+
+            <img mat-card-image [ngSrc]="course.iconUrl" width="510" height="287" priority="true">
+        }
+
 
         <mat-card-content>
             
