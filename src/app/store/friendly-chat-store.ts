@@ -46,7 +46,8 @@ export const FriendlyChatStore = signalStore(
     withMethods((store) => ({
         
         setAllCourses(courses: Course[]) {
-            patchState(store, setAllEntities([...courses], {collection: 'course', idKey: 'id'}));
+            // patchState(store, setAllEntities([...courses], {collection: 'course', idKey: 'id'}));
+            patchState(store, setAllEntities([...courses], {collection: 'course'}));
         },
 
         setSelectedCourseId(selectedCourseId: string) {
@@ -54,7 +55,7 @@ export const FriendlyChatStore = signalStore(
         },
 
         setAllLessons(lessons: Lesson[]) {
-            patchState(store, setAllEntities([...lessons], {collection: 'lesson', idKey: 'id'}));
+            patchState(store, setAllEntities([...lessons], {collection: 'lesson'}));
         },
 
         setSelectedLessonId(selectedLessonId: string) {
