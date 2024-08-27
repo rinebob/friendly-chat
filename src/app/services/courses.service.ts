@@ -1,5 +1,5 @@
 import { inject, Injectable, OnDestroy } from '@angular/core';
-import { addDoc, collection, deleteDoc, doc, DocumentData, Firestore, getDoc, getDocs, limit, onSnapshot, orderBy, query, setDoc, Unsubscribe, updateDoc, where, writeBatch } from '@angular/fire/firestore';
+import { addDoc, collection, collectionGroup, deleteDoc, doc, DocumentData, Firestore, getDoc, getDocs, limit, onSnapshot, orderBy, query, setDoc, Unsubscribe, updateDoc, where, writeBatch } from '@angular/fire/firestore';
 import { Course, Lesson } from '../common/interfaces';
 import { FirestoreCollection } from '../common/constants';
 import { CourseConverter, LessonConverter } from '../common/firestore-converters';
@@ -276,6 +276,24 @@ export class CoursesService implements OnDestroy {
         });
 
         return courses;
+
+    }
+
+    async onReadCollectionGroup() {
+        const lessonsCollectionRef = collectionGroup(this.db, FirestoreCollection.LESSONS).withConverter(new LessonConverter());
+
+        const lessons = query(lessonsCollectionRef, where('seqNo', '==', 1));
+
+        const querySnapshot = await getDocs(lessons);
+
+        const lessonsResult: Lesson[] = []
+        querySnapshot.forEach(doc => {
+            console.log('cSvc oRCG lesson title/internalId/seqNo: ', doc.data().description, doc.data().internalId, doc.data().seqNo)
+            lessonsResult.push(doc.data());
+        });
+        
+        console.log('cSvc oRCG lessonsResult: ', lessonsResult);
+        return lessonsResult;
 
     }
 
